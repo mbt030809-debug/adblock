@@ -1,0 +1,32 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.mbt.adblock'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.mbt.adblock'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    sourceSets {
+        main {
+            // 확장과 같은 차단 목록 공유 (repo 루트 lists/)
+            assets.srcDirs = ['src/main/assets', '../../lists']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
