@@ -3,7 +3,7 @@
   "name": "My AdBlock",
   "version": "0.1.0",
   "description": "유튜브/영상 광고, 배너, 팝업 차단 (수동 지정 / 수동 열기 지원)",
-  "minimum_chrome_version": "108",
+  "minimum_chrome_version": "111",
   "permissions": ["storage", "declarativeNetRequest", "scripting", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "src/background.js" },

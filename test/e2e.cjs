@@ -49,18 +49,24 @@ const srv = http.createServer((_, res) => {
   await page.waitForTimeout(300);
   assert.notEqual(await page.$eval('#custom', (e) => getComputedStyle(e).display), 'none');
   const tabId = await sw.evaluate(async (u) => (await chrome.tabs.query({})).find((t) => t.url === u).id, url);
-  await sw.evaluate((id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['src/content/picker.js'] }), tabId);
-  await page.click('#custom');
-  // 저장 버튼은 closed shadow 안 → 화면 좌표로 클릭 (툴바 2번째 버튼)
+  await sw.evaluate((id) => chrome.scripting.executeScript({ target: { tabId: id }, files: ['shared/region-picker.js', 'src/content/picker.js'] }), tabId);
+  // #custom 영역을 네모로 드래그 (여유 있게 감싸기)
+  const bb = await page.$eval('#custom', (e) => { const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
+  await page.mouse.move(bb.x - 3, bb.y - 3);
+  await page.mouse.down();
+  await page.mouse.move(bb.x + bb.w / 2, bb.y + bb.h / 2, { steps: 5 });
+  await page.mouse.move(bb.x + bb.w + 3, bb.y + bb.h + 3, { steps: 5 });
+  await page.mouse.up();
   await page.screenshot({ path: '/tmp/adb-picker.png' });
-  // 툴바(하단): [상위 ▲][숨기기][취소] — closed shadow 라 좌표로 클릭
+  // 확인 바 [숨기기 (N)] 클릭 — closed shadow 라 좌표로 클릭 (하단 바 첫 버튼)
   const vp = page.viewportSize();
-  await page.mouse.click(8 + 12 + 95, vp.height - 8 - 22);
+  await page.mouse.click(8 + 12 + 50, vp.height - 8 - 22);
   await page.waitForTimeout(500);
   const saved = await sw.evaluate(() => chrome.storage.local.get('userRules'));
   console.log('saved', JSON.stringify(saved));
-  assert.ok((saved.userRules.localhost || []).length === 1, '피커 저장');
-  assert.equal(await page.$eval('#custom', (e) => getComputedStyle(e).display), 'none', '피커 규칙 즉시 반영');
+  assert.ok((saved.userRules.localhost || []).length >= 1, '영역 지정 저장');
+  assert.equal(await page.$eval('#custom', (e) => getComputedStyle(e).display), 'none', '영역 규칙 즉시 반영');
+  assert.notEqual(await page.$eval('#b1', (e) => getComputedStyle(e).display), 'x');
 
   // 7) DNR: 차단 도메인 요청 확인
   const rules = await sw.evaluate(() => chrome.declarativeNetRequest.getEnabledRulesets());

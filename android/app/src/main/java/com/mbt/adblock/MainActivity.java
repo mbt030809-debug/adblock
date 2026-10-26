@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
     private Settings settings;
     private Blocker blocker;
     private String adbJs = "";
+    private String regionJs = "";
 
     private WebView web;
     private EditText urlBar;
@@ -76,6 +77,7 @@ public class MainActivity extends Activity {
         blocker = new Blocker(this);
         blocker.setUserDomains(settings.list("userDomains"));
         adbJs = readAsset("adb.js");
+        regionJs = readAsset("region-picker.js");
 
         buildUi();
         setupWebView();
@@ -161,7 +163,7 @@ public class MainActivity extends Activity {
             if (web.canGoForward()) web.goForward();
         }), lp);
         nav.addView(btn("⟳", v -> web.reload()), lp);
-        nav.addView(btn("요소지정", v -> web.evaluateJavascript("window.__adbPick && window.__adbPick()", null)), lp);
+        nav.addView(btn("영역지정", v -> web.evaluateJavascript("window.__adbPick && window.__adbPick()", null)), lp);
         nav.addView(btn("⋮", v -> showMenu()), lp);
         col.addView(nav, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -323,7 +325,7 @@ public class MainActivity extends Activity {
     }
 
     private String bootstrap() {
-        return "window.__ADB_CFG=" + settings.jsConfig() + ";\n" + adbJs;
+        return regionJs + "\n;window.__ADB_CFG=" + settings.jsConfig() + ";\n" + adbJs;
     }
 
     private void setupWebView() {
@@ -452,12 +454,20 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void saveRule(final String selector) {
+        public void saveRules(final String json) {
             runOnUiThread(() -> {
-                if (selector == null || selector.length() > 500) return;
-                settings.addRule(pageHost, selector);
-                registerScripts();
-                Toast.makeText(MainActivity.this, "숨김 규칙 저장됨", Toast.LENGTH_SHORT).show();
+                if (json == null || json.length() > 20000) return;
+                try {
+                    org.json.JSONArray a = new org.json.JSONArray(json);
+                    int n = Math.min(a.length(), 50);
+                    for (int i = 0; i < n; i++) {
+                        String sel = a.optString(i);
+                        if (!sel.isEmpty() && sel.length() <= 500) settings.addRule(pageHost, sel);
+                    }
+                    registerScripts();
+                    Toast.makeText(MainActivity.this, n + "개 숨김 규칙 저장됨", Toast.LENGTH_SHORT).show();
+                } catch (org.json.JSONException ignored) {
+                }
             });
         }
     }

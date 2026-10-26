@@ -36,77 +36,14 @@
     document.addEventListener('DOMContentLoaded', function () { mount(); mo.disconnect(); });
   } catch (e) {}
 
-  // ---------- 요소 직접 지정 (top frame) ----------
+  // ---------- 영역 지정 (top frame) ----------
   if (TOP) {
     window.__adbPick = function () {
-      if (window.__adbPicking) { window.__adbPicking(); return; }
-      var host = document.createElement('div');
-      host.style.cssText = 'all:initial;position:fixed;inset:0;z-index:2147483647;pointer-events:none';
-      var root = host.attachShadow({ mode: 'closed' });
-      root.innerHTML =
-        '<style>.box{position:fixed;border:2px solid #f43f5e;background:#f43f5e33;pointer-events:none;display:none}' +
-        '.bar{position:fixed;left:8px;right:8px;bottom:8px;background:#222;color:#fff;border-radius:10px;padding:8px 12px;' +
-        'font:14px/1.4 sans-serif;pointer-events:auto;box-shadow:0 2px 10px #0008}' +
-        '.s{font:12px monospace;opacity:.8;word-break:break-all;margin:4px 0}.r{display:flex;gap:6px;flex-wrap:wrap}' +
-        'button{font:inherit;border:0;border-radius:6px;padding:8px 14px;background:#555;color:#fff}button.p{background:#f43f5e}</style>' +
-        '<div class="box"></div><div class="bar"><div class="m">숨길 요소를 탭하세요</div><div class="s"></div>' +
-        '<div class="r"><button class="up">상위 ▲</button><button class="p save">숨기기</button><button class="cancel">취소</button></div></div>';
-      var box = root.querySelector('.box'), msg = root.querySelector('.m'), selText = root.querySelector('.s');
-      document.documentElement.appendChild(host);
-      var cur = null;
-
-      function selectorOf(el) {
-        function uniq(s) { try { return document.querySelectorAll(s).length === 1; } catch (e) { return false; } }
-        var parts = [], n = el;
-        while (n && n.nodeType === 1 && n !== document.documentElement) {
-          var p = n.tagName.toLowerCase();
-          if (n.id && !/\d{4,}/.test(n.id)) {
-            parts.unshift('#' + CSS.escape(n.id));
-            if (uniq(parts.join(' > '))) break;
-            n = n.parentElement;
-            continue;
-          }
-          var cls = Array.prototype.filter.call(n.classList, function (c) { return !/\d{3,}|^(js|is|has)-/.test(c); }).slice(0, 2);
-          if (cls.length) p += cls.map(function (c) { return '.' + CSS.escape(c); }).join('');
-          var sib = n.parentElement && Array.prototype.filter.call(n.parentElement.children, function (x) { return x.tagName === n.tagName; });
-          if (sib && sib.length > 1 && !uniq(p)) p += ':nth-of-type(' + (sib.indexOf(n) + 1) + ')';
-          parts.unshift(p);
-          if (uniq(parts.join(' > '))) break;
-          n = n.parentElement;
-        }
-        return parts.join(' > ');
-      }
-      function highlight(el) {
-        var r = el.getBoundingClientRect();
-        box.style.cssText = 'display:block;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px';
-      }
-      function show(el) { cur = el; highlight(el); selText.textContent = selectorOf(el); msg.textContent = '이 요소를 숨길까요?'; }
-      function inUI(e) { return e.composedPath().indexOf(host) >= 0; }
-      function onClick(e) { if (inUI(e)) return; e.preventDefault(); e.stopImmediatePropagation(); show(e.target); }
-      function blockEv(e) { if (!inUI(e)) { e.preventDefault(); e.stopImmediatePropagation(); } }
-      document.addEventListener('click', onClick, true);
-      document.addEventListener('auxclick', blockEv, true);
-      document.addEventListener('submit', blockEv, true);
-      function stop() {
-        document.removeEventListener('click', onClick, true);
-        document.removeEventListener('auxclick', blockEv, true);
-        document.removeEventListener('submit', blockEv, true);
-        host.remove();
-        window.__adbPicking = null;
-      }
-      window.__adbPicking = stop;
-      root.querySelector('.cancel').onclick = stop;
-      root.querySelector('.up').onclick = function () {
-        if (cur && cur.parentElement && cur.parentElement !== document.body) show(cur.parentElement);
-      };
-      root.querySelector('.save').onclick = function () {
-        if (!cur) return;
-        var sel = selectorOf(cur);
-        cur.style.setProperty('display', 'none', 'important');
-        if (userRules.indexOf(sel) < 0) userRules.push(sel);
-        bridge('saveRule', sel);
-        stop();
-      };
+      if (!window.__adbRegionPick) return;
+      window.__adbRegionPick(function (sels) {
+        sels.forEach(function (s) { if (userRules.indexOf(s) < 0) userRules.push(s); });
+        bridge('saveRules', JSON.stringify(sels));
+      });
     };
   }
 

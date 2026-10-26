@@ -30,7 +30,7 @@ const norm = (h) => h.replace(/^www\./, '');
   });
 
   $('pick').onclick = async () => {
-    await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: false }, files: ['src/content/picker.js'] });
+    await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: false }, files: ['shared/region-picker.js', 'src/content/picker.js'] });
     window.close();
   };
 

@@ -16,8 +16,8 @@ android {
 
     sourceSets {
         main {
-            // 확장과 같은 차단 목록 공유 (repo 루트 lists/)
-            assets.srcDirs = ['src/main/assets', '../../lists']
+            // 확장과 같은 차단 목록 공유 (repo 루트 lists/, shared/)
+            assets.srcDirs = ['src/main/assets', '../../lists', '../../shared']
         }
     }
 
