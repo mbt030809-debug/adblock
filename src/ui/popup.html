@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font:14px/1.5 sans-serif;width:320px;margin:0;padding:12px;color:#111}
+  h1{font-size:16px;margin:0 0 8px}
+  label{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
+  button{font:inherit;border:0;border-radius:6px;padding:8px 12px;background:#3b82f6;color:#fff;width:100%;margin-top:8px}
+  button.s{background:#e5e7eb;color:#111;width:auto;padding:2px 8px;margin:0}
+  h2{font-size:13px;margin:12px 0 4px;color:#555}
+  .rule{display:flex;justify-content:space-between;gap:6px;font:12px monospace;padding:3px 0;word-break:break-all}
+  input[type=text]{width:100%;box-sizing:border-box;padding:6px;margin-top:4px}
+  .muted{color:#888;font-size:12px}
+</style>
+</head>
+<body>
+  <h1>My AdBlock <span class="muted" id="host"></span></h1>
+  <label>전체 사용 <input type="checkbox" id="enabled"></label>
+  <label>유튜브/영상 광고 차단 <input type="checkbox" id="youtube"></label>
+  <label>팝업 차단 <input type="checkbox" id="popups"></label>
+  <label>배너 숨김 <input type="checkbox" id="cosmetic"></label>
+  <label>이 사이트 일시중지 <input type="checkbox" id="paused"></label>
+  <label>이 사이트 팝업 허용 <input type="checkbox" id="popupAllow"></label>
+  <button id="pick">요소 직접 지정 (배너 숨기기)</button>
+
+  <h2>이 사이트 숨김 규칙</h2>
+  <div id="rules"><span class="muted">없음</span></div>
+
+  <h2>차단 도메인 추가</h2>
+  <input type="text" id="dom" placeholder="예: ads.example.com + Enter">
+  <div id="doms"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

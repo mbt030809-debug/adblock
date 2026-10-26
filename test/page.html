@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><title>t</title>
+<body>
+<div id="content">본문</div>
+<div class="ad-banner" id="b1" style="height:50px">AD</div>
+<div id="custom" class="promo box" style="height:50px">내가 지정할 배너</div>
+<div id="clickarea" style="height:40px">click-under 영역</div>
+<button id="ok">정상 팝업 버튼</button>
+<script>
+  window.__opened = [];
+  const real = window.open;
+  setTimeout(() => { window.__r1 = window.open('https://ad.example/1'); }, 200);
+  document.getElementById('clickarea').onclick = () => { window.__r2 = window.open('https://ad.example/2'); };
+  document.getElementById('ok').onclick = () => { window.__r3 = window.open('about:blank'); };
+</script>

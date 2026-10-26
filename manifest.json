@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "My AdBlock",
+  "version": "0.1.0",
+  "description": "유튜브/영상 광고, 배너, 팝업 차단 (수동 지정 / 수동 열기 지원)",
+  "minimum_chrome_version": "108",
+  "permissions": ["storage", "declarativeNetRequest", "scripting", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "src/background.js" },
+  "action": { "default_title": "My AdBlock", "default_popup": "src/ui/popup.html" },
+  "declarative_net_request": {
+    "rule_resources": [{ "id": "ads", "enabled": true, "path": "rules/ads.json" }]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*", "*://*.youtube-nocookie.com/*"],
+      "js": ["src/content/youtube-main.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/popup-guard.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/common.js", "src/content/cosmetic.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["src/content/common.js", "src/content/youtube.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

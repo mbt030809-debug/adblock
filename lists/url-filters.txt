@@ -1,0 +1,6 @@
+# urlFilter 규칙 (declarativeNetRequest 문법)
+||youtube.com/api/stats/ads
+||youtube.com/pagead/
+||youtube.com/get_midroll_
+||youtube.com/ptracking
+||youtube.com/youtubei/v1/player/ad_break
